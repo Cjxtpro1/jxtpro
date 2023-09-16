@@ -6,11 +6,12 @@ from pyrogram.types import Message
 import time
 import os
 import threading
+import base64
 
-bot_token = os.environ.get("TOKEN", "6664561608:AAGB6Nf-IPrmtjzQeja_PK2GphQ_pprma58") 
-api_hash = os.environ.get("HASH", "2dd2931e17ae61c8680b6cdb6a9edc74") 
-api_id = os.environ.get("ID", "22589525")
-ss = os.environ.get("STRING", "BQBC1zwHi3-N86Vfq7SG0Vqsua8qcC6A_EV0xTL2EZZKEGBevioWYn0SBtbPSSO-P6ennW0d_qvEJwAAWMyMS7Q0demUTblwqC7qCDHwBNazNfMP-Y8rMm4htDy65tqTUBEu9pYRzTPQZ4xXW2j9M03uh1OirDCYRo3fMw04U5YB5aGmu8Jj0K-rOmXEUYBXXogUvUGl5pCy3EqVC438lwo8Xf4tfCype4nDzmn1jB479Rf4abNukLtRoXC6nv8qCEhTuBRLrwP9RFKC-wxo5xfpRw7CVSQMPThNkPWJ-tk8eVehsJCQDo0SxivPrIQJjSvaLMtyBw0gy3zxZJ4-rBjfI2L1VQA ")
+bot_token = os.environ.get("TOKEN", "") 
+api_hash = os.environ.get("HASH", "") 
+api_id = os.environ.get("ID", "")
+ss = os.environ.get("STRING", "")
 bot = Client("mybot",api_id=api_id,api_hash=api_hash,bot_token=bot_token)
 acc = Client("myacc",api_id=api_id,api_hash=api_hash,session_string=ss)
 
@@ -59,8 +60,8 @@ def upstatus(statusfile,message):
 # progress writter
 def progress(current, total, message, type):
     with open(f'{message.id}{type}status.txt',"w") as fileup:
-        fileup.write(f"{current * 100 / total:.1f}%")
-
+        padded_progress = f"{current * 100 / total:.1f}%".encode('utf-8').decode('utf-8')
+        fileup.write(padded_progress)
 
 @bot.on_message(filters.text)
 def save(client: pyrogram.client.Client, message: pyrogram.types.messages_and_media.message.Message):
@@ -71,11 +72,11 @@ def save(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
         try:
             with acc:
                 acc.join_chat(message.text)
-            bot.send_message(message.chat.id,"**successfully join the chat**", reply_to_message_id=message.id)
+            bot.send_message(message.chat.id, "**successfully join the chat**", reply_to_message_id=message.id)
         except UserAlreadyParticipant:
-            bot.send_message(message.chat.id,"**successfully join the chat**", reply_to_message_id=message.id)
+            bot.send_message(message.chat.id, "**successfully join the chat**", reply_to_message_id=message.id)
         except InviteHashExpired:
-            bot.send_message(message.chat.id,"**link has expired.**", reply_to_message_id=message.id)
+            bot.send_message(message.chat.id, "**link has expired.**", reply_to_message_id=message.id)
     
     # getting message
     elif "https://t.me/" in message.text:
@@ -88,19 +89,19 @@ def save(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
             chatid = int("-100" + datas[-2])
 
             with acc:
-                msg  = acc.get_messages(chatid,msgid)
+                msg  = acc.get_messages(chatid, msgid)
 
                 if "text" in str(msg):
                     bot.send_message(message.chat.id, msg.text, entities=msg.entities, reply_to_message_id=message.id)
                     return
 
                 smsg = bot.send_message(message.chat.id, '__Downloading__', reply_to_message_id=message.id)
-                dosta = threading.Thread(target=lambda:downstatus(f'{message.id}downstatus.txt',smsg),daemon=True)
+                dosta = threading.Thread(target=lambda:downstatus(f'{message.id}downstatus.txt', smsg), daemon=True)
                 dosta.start()
-                file = acc.download_media(msg, progress=progress, progress_args=[message,"down"])
+                file = acc.download_media(msg, progress=progress, progress_args=[message, "down"])
                 os.remove(f'{message.id}downstatus.txt')
 
-                upsta = threading.Thread(target=lambda:upstatus(f'{message.id}upstatus.txt',smsg),daemon=True)
+                upsta = threading.Thread(target=lambda:upstatus(f'{message.id}upstatus.txt', smsg), daemon=True)
                 upsta.start()
 
             if "Document" in str(msg):
@@ -109,8 +110,11 @@ def save(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
                         thumb = acc.download_media(msg.document.thumbs[0].file_id)
                 except:
                     thumb = None
-                bot.send_document(message.chat.id, file, thumb=thumb, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message,"up"])
-                if thumb != None:
+                bot.send_document(
+                    message.chat.id, file, thumb=thumb, caption=msg.caption, caption_entities=msg.caption_entities,
+                    reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"]
+                )
+                if thumb is not None:
                     os.remove(thumb)
 
             elif "Video" in str(msg):
@@ -119,8 +123,12 @@ def save(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
                         thumb = acc.download_media(msg.video.thumbs[0].file_id)
                 except:
                     thumb = None
-                bot.send_video(message.chat.id, file, duration=msg.video.duration, width=msg.video.width, height=msg.video.height, thumb=thumb, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message,"up"])
-                if thumb != None:
+                bot.send_video(
+                    message.chat.id, file, duration=msg.video.duration, width=msg.video.width, height=msg.video.height,
+                    thumb=thumb, caption=msg.caption, caption_entities=msg.caption_entities,
+                    reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"]
+                )
+                if thumb is not None:
                     os.remove(thumb)
 
             elif "Animation" in str(msg):
@@ -130,7 +138,10 @@ def save(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
                 bot.send_sticker(message.chat.id, file, reply_to_message_id=message.id)
 
             elif "Voice" in str(msg):
-                bot.send_voice(message.chat.id, file, caption=msg.caption, thumb=thumb, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message,"up"])
+                bot.send_voice(
+                    message.chat.id, file, caption=msg.caption, thumb=thumb, caption_entities=msg.caption_entities,
+                    reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"]
+                )
 
             elif "Audio" in str(msg):
                 try:
@@ -138,30 +149,41 @@ def save(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
                         thumb = acc.download_media(msg.audio.thumbs[0].file_id)
                 except:
                     thumb = None
-                bot.send_audio(message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id, progress=progress, progress_args=[message,"up"])   
-                if thumb != None:
+                bot.send_audio(
+                    message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities,
+                    reply_to_message_id=message.id, progress=progress, progress_args=[message, "up"]
+                )
+                if thumb is not None:
                     os.remove(thumb)
 
             elif "Photo" in str(msg):
-                bot.send_photo(message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id)
-
+                bot.send_photo(
+                    message.chat.id, file, caption=msg.caption, caption_entities=msg.caption_entities,
+                    reply_to_message_id=message.id
+                )
 
             os.remove(file)
             if os.path.exists(f'{message.id}upstatus.txt'):
                 os.remove(f'{message.id}upstatus.txt')
-            bot.delete_messages(message.chat.id,[smsg.id])
+            bot.delete_messages(message.chat.id, [smsg.id])
                 
         
         # public
         else:
             username = datas[-2]
-            msg  = bot.get_messages(username,msgid)
+            msg = bot.get_messages(username, msgid)
     
             if "Document" in str(msg):
-                bot.send_document(message.chat.id, msg.document.file_id, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id)
+                bot.send_document(
+                    message.chat.id, msg.document.file_id, caption=msg.caption, caption_entities=msg.caption_entities,
+                    reply_to_message_id=message.id
+                )
 
             elif "Video" in str(msg):
-                bot.send_video(message.chat.id, msg.video.file_id, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id)
+                bot.send_video(
+                    message.chat.id, msg.video.file_id, caption=msg.caption, caption_entities=msg.caption_entities,
+                    reply_to_message_id=message.id
+                )
             
             elif "Animation" in str(msg):
                 bot.send_animation(message.chat.id, msg.animation.file_id, reply_to_message_id=message.id)
@@ -170,19 +192,32 @@ def save(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
                 bot.send_sticker(message.chat.id, msg.sticker.file_id, reply_to_message_id=message.id)
 
             elif "Voice" in str(msg):
-                bot.send_voice(message.chat.id, msg.voice.file_id, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id)    
+                bot.send_voice(
+                    message.chat.id, msg.voice.file_id, caption=msg.caption, caption_entities=msg.caption_entities,
+                    reply_to_message_id=message.id
+                )    
 
             elif "Audio" in str(msg):
-                bot.send_audio(message.chat.id, msg.audio.file_id, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id)    
+                bot.send_audio(
+                    message.chat.id, msg.audio.file_id, caption=msg.caption, caption_entities=msg.caption_entities,
+                    reply_to_message_id=message.id
+                )    
 
             elif "text" in str(msg):
                 bot.send_message(message.chat.id, msg.text, entities=msg.entities, reply_to_message_id=message.id)
 
             elif "Photo" in str(msg):
-                bot.send_photo(message.chat.id, msg.photo.file_id, caption=msg.caption, caption_entities=msg.caption_entities, reply_to_message_id=message.id)
+                bot.send_photo(
+                    message.chat.id, msg.photo.file_id, caption=msg.caption, caption_entities=msg.caption_entities,
+                    reply_to_message_id=message.id
+                )
 
+            os.remove(file)
+            if os.path.exists(f'{message.id}upstatus.txt'):
+                os.remove(f'{message.id}upstatus.txt')
+            bot.delete_messages(message.chat.id,[smsg.id])
+       
 
+printf("Bot Deployed Successfully --- Team SPY")
 # infinty polling
 bot.run()
-# Add the following line to print the deployment message
-print("Bot Deployed Successfully --- Team SPY")
