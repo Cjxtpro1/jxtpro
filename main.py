@@ -218,6 +218,6 @@ def save(client: pyrogram.client.Client, message: pyrogram.types.messages_and_me
             bot.delete_messages(message.chat.id,[smsg.id])
        
 
-
+print("Bot Deployed Successfully --- Team SPY")
 # infinty polling
 bot.run()
