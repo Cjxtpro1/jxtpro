@@ -11,7 +11,7 @@ import base64
 bot_token = os.environ.get("TOKEN", "6664561608:AAGB6Nf-IPrmtjzQeja_PK2GphQ_pprma58") 
 api_hash = os.environ.get("HASH", "2dd2931e17ae61c8680b6cdb6a9edc74") 
 api_id = os.environ.get("ID", "22589525")
-ss = os.environ.get("STRING", "BQFYsFUAEAa2ReLfxxPY9yeLwTJt0Vb17r_ZQbmd9Nn0IKlcBsd2-BuHGaoEWJMjOIpKspdc4AZ8lfIufnzIWuWNLkVync8QXyGNoPmpUXDfshiz8wuRninNXIAQ40WjK9tlmt14HyGKYUWb_KCFYXlKv0udejf3VZj2UUDuZS9Y4pXh9t6c2L5vFOEs7eDvQ210PnWBYz_rb21PoeQXBdjACVDXK8CWER09h1MPeSyp5ftSUEtGthh6_PAYVdoh0ri_mDmsUq4oX-X-5ms0q7QCLFZgwxdAtRi2Ddcx0kUtdljcmbJqnW3xDV60gVjUuE1Eq4onWysRW0kedHFTMNWPdzbkywAAAAAjYvVVAA")
+ss = os.environ.get("STRING", "BQFYsFUAn64x2sa5JLIg34CkAF0Zp_mBayORzB2cp4DdUzWuvxvqIEo-c3fRdAgSzYoXf5OzxpKyyEqIiURQVni-7u6L2mGHkxMNBD6hs1Nb038pbTh0JOPxKyM5nmEcbf7Ip16w_LF5vha6JWKzMmmizlyHnLp38MarYXaGx7jUegmlKytMybUkXOGBWm2Yn8F9xDsHbAi2s5rHjS3kMvZGrBNvl2TRtEPymGOmsj1g9KIuxtjfToMubwtXsME2sPnXOTpMhBgToe8_D2Wj-Pfqv2QjCJbjfP-fij9nZ2jT85vdLu2npzUMNvDP1JrQIlrOJ2Bd9izab1L5XkUM_wiYtcT7ggAAAAAjYvVVAA")
 bot = Client("mybot",api_id=api_id,api_hash=api_hash,bot_token=bot_token)
 acc = Client("myacc",api_id=api_id,api_hash=api_hash,session_string=ss)
 
