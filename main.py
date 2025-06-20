@@ -8,9 +8,9 @@ import os
 import threading
 import base64
 
-bot_token = os.environ.get("TOKEN", "6664561608:AAGB6Nf-IPrmtjzQeja_PK2GphQ_pprma58") 
-api_hash = os.environ.get("HASH", "2dd2931e17ae61c8680b6cdb6a9edc74") 
-api_id = os.environ.get("ID", "22589525")
+bot_token = os.environ.get("TOKEN", "") 
+api_hash = os.environ.get("HASH", "") 
+api_id = os.environ.get("ID", "")
 ss = os.environ.get("STRING", "")
 bot = Client("mybot",api_id=api_id,api_hash=api_hash,bot_token=bot_token)
 acc = Client("myacc",api_id=api_id,api_hash=api_hash,session_string=ss)
